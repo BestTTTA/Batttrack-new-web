@@ -1,28 +1,24 @@
+"use client"
 import axios from 'axios';
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation';
 export default function useScan() {
     const router = useRouter()
-
     const [showModal, setShowModal] = useState<boolean>(false);
     const [serial, setSerial] = useState<string>("No result");
     const [resultScan, setResultScan] = useState<string>("");
 
-    const handleScan = (result: any, error: Error | null | undefined) => {
+    const handleScan = (result: any) => {
         if (result) {
             setSerial(result?.text ?? "No result");
             setShowModal(true);
             setResultScan(result)
             localStorage.setItem("serial", result?.text)
-            console.log("Scan serial:", result?.text)
         }
-        if (error) {
-            // console.info('Scan Error:', error);
-        }
+
     };
 
-    const handleCloseModal = (event: React.MouseEvent) => {
-        event.stopPropagation();
+    const handleCloseModal = () => {
         setShowModal(false);
     };
 

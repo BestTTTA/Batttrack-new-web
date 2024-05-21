@@ -6,7 +6,7 @@ import Createpage from "./createproject/page";
 
 const HorizontalSection = () => {
     return (
-        <section id="horizentalpage" className="overflow-hidden transition duration-500 ease-in-out ">
+        <main className="overflow-hidden transition duration-500 ease-in-out ">
             <div className="flex">
                 <Homepage />
                 <Scanpage />
@@ -14,7 +14,7 @@ const HorizontalSection = () => {
                 <Createpage/>
                 <Profilepage />
             </div>
-        </section>
+        </main>
     );
 };
 

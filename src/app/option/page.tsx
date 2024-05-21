@@ -1,12 +1,12 @@
 "use client"
-import Navigationtab from "../horizentalpage/components/Navigationtab"
-import HorizontalSection from "../horizentalpage/page"
+import Navigationtab from "@/app/horizentalpage/components/Navigationtab"
+import HorizontalSection from "@/app/horizentalpage/page"
 
 export default function Option() {
     return (
-        <main className="">
-            <HorizontalSection/>
+        <>
+            <HorizontalSection />
             <Navigationtab />
-        </main>
+        </>
     )
 }

@@ -7,7 +7,7 @@ import { useValueContext } from '@/app/context';
 import { MdOutlineCreateNewFolder } from "react-icons/md";
 
 const Navigationtab = () => {
-    const [click, setClick] = useState("#homepage")
+    const [click, setClick] = useState("#home_page")
     const isActive = (id: string): boolean => {
         return click === id;
 
@@ -27,10 +27,10 @@ const Navigationtab = () => {
     }, [])
 
     const nav = [
-        { id: "#homepage", label: "Home", Icon: FiHome },
-        { id: "#scanpage", label: "Scan", Icon: IoQrCode },
-        { id: "#checkpage", label: "List", Icon: FaListCheck },
-        { id: "#createpage", label: "Create", Icon: MdOutlineCreateNewFolder },
+        { id: "#home_page", label: "Home", Icon: FiHome },
+        { id: "#scan_page", label: "Scan", Icon: IoQrCode },
+        { id: "#check_page", label: "List", Icon: FaListCheck },
+        { id: "#create_page", label: "Create", Icon: MdOutlineCreateNewFolder },
     ];
 
     return (
@@ -44,8 +44,8 @@ const Navigationtab = () => {
                         </div>
                     </Link>
                 ))}
-                <Link href={"#profile"} onClick={() => { setClick("#profile") }} className='flex w-15 h-15 flex-col items-center justify-center'>
-                    <div className={`flex rounded-full p-2 flex-col items-center transition duration-300 ease-in-out ${isActive("#profile") ? "text-orange-500 bg-gray-900 scale-105 rounded-md" : "hover:scale-110"}`}>
+                <Link href={"#profile_page"} onClick={() => { setClick("#profile_page") }} className='flex w-15 h-15 flex-col items-center justify-center'>
+                    <div className={`flex rounded-full p-2 flex-col items-center transition duration-300 ease-in-out ${isActive("#profile_page") ? "text-orange-500 bg-gray-900 scale-105 rounded-md" : "hover:scale-110"}`}>
                         <img src={useProfile} alt="" className='border-2 border-gray-700 w-[30px] h-[30px] rounded-full object-cover'/>
                     <p className=" text-[9px]">{name}</p>
                     </div>

@@ -1,9 +1,11 @@
+"use client"
+
 import axios from 'axios';
 import { FC, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 
-const HomePage: FC = () => {
+const HomePage = () => {
   const [name, setName] = useState<string>("")
   const router = useRouter();
   const [data, setData] = useState<any[]>([])
@@ -47,7 +49,7 @@ const HomePage: FC = () => {
   }
 
   return (
-    <section id="homepage" className="overflow-x-auto p-4 whitespace-nowrap h-screen min-w-full bg-gray-700 transition duration-500 ease-in-out">
+    <section id="home_page" className="overflow-x-auto p-4 whitespace-nowrap h-screen min-w-full bg-gray-700 transition duration-500 ease-in-out">
       {
         data && data.length > 0 ? (
           <div className='rounded-md w-full h-full drop-shadow-xl space-y-4'>

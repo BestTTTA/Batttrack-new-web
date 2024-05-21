@@ -1,3 +1,4 @@
+"use client";
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -39,6 +40,8 @@ export default function useUpdate() {
     const [password, setPassword] = useState<string>("");
     const [openBreak, setOpenBreak] = useState<boolean>(false);
     const [breakDescription, setBreakDescription] = useState<string>("");
+    const [isBreaking, setIsBreaking] = useState<boolean>(false);
+    const [allEnd, setAllEnd] = useState<boolean>(false);
 
     useEffect(() => {
         const localNameProject = localStorage.getItem("name_project");
@@ -56,30 +59,23 @@ export default function useUpdate() {
         setPassword(localPassword);
     }, []);
 
-    const handleScan = (result: any, error: Error | null | undefined) => {
+    const handleScan = (result: any) => {
         if (result) {
             setShowModal(true);
             setResultScan(result?.text || "");
             setEffected(prev => prev + 1);
         }
-        if (error) {
-            // console.info('Scan Error:', error);
-        }
     };
-
-
 
     const handleCloseModal = (event: React.MouseEvent) => {
         event.stopPropagation();
         setShowModal(false);
     };
 
-    const GetdataAndNavigation = async () => {
+    const getDataAndNavigation = async () => {
         try {
             const responseData = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/search_project_details/${resultScan}`);
             if (responseData.status === 200) {
-                console.log("Project Response success", responseData.data);
-                console.log(responseData.data)
                 const serializedData = encodeURIComponent(JSON.stringify(responseData.data));
                 router.push(`/option/details?projectdetails=${serializedData}`);
             }
@@ -89,27 +85,24 @@ export default function useUpdate() {
     };
 
     const handleOK = async () => {
-        console.log("OK Button Clicked");
         if (projectDetails) {
             const firstStep = projectDetails.process_step.find(step => !step.process_status);
             if (firstStep && firstStep.timestart === "-") {
                 await UpdateWorkStarttime();
             } else {
-                await UpdateStartStep();
+                await updateStartStep();
             }
         }
     };
 
     const Getdata = async () => {
         try {
-            const responseData = await axios.get<ProjectDetails>(`${process.env.NEXT_PUBLIC_BASE_URL}/search_project_details/EQModule010523A`);
+            const responseData = await axios.get<ProjectDetails>(`${process.env.NEXT_PUBLIC_BASE_URL}/search_project_details/${serial}`);
             if (responseData.status === 200) {
-                console.log("get data success", responseData.data)
                 setProjectDetails(responseData.data);
             }
         } catch (error) {
             console.error("Error fetching project details", error);
-            console.log("serial number:", serial || "")
         }
     };
 
@@ -119,17 +112,11 @@ export default function useUpdate() {
         }
     }, [effected, openBreak]);
 
-    // useEffect(() => {
-    //     Getdata();
-    // }, []);
-
     const UpdateWorkStarttime = async () => {
         try {
             const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}/projects/${name_project}/${serial}/start_process/${currentDateTimeThailand}`);
-            console.log("Update time start success", response.data);
             if (response.status === 200 && projectDetails) {
-                // Assume the logic to update the step needs to be triggered here
-                UpdateStartStep();
+                await updateStartStep();
             }
         } catch (error) {
             console.error("Error UpdateWorkStarttime", error);
@@ -150,8 +137,7 @@ export default function useUpdate() {
         }
     };
 
-    const UpdateStartStep = async () => {
-        console.log("Updating start step");
+    const updateStartStep = async () => {
         if (projectDetails) {
             const stepToUpdateStart = projectDetails.process_step.find(step => !step.process_status && step.timestart === "-" && step.endtime === "-");
             if (stepToUpdateStart) {
@@ -172,8 +158,9 @@ export default function useUpdate() {
     const updateProjectStepStart = async (step: ProcessStep) => {
         try {
             const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}/projects/${name_project}/${serial}/${encodeURIComponent(step.name_step)}/${currentDateTimeThailand}/update_project_step_start`);
-            console.log(`Step ${step.name_step} start updated successfully`, response.data);
-            GetdataAndNavigation();
+            if (response.status === 200) {
+                getDataAndNavigation();
+            }
         } catch (error) {
             console.error(`Error updating start for step ${step.name_step}`, error);
         }
@@ -195,56 +182,49 @@ export default function useUpdate() {
     const updateProjectStepEnd = async (step: ProcessStep) => {
         try {
             const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}/projects/${name_project}/${serial}/${encodeURIComponent(step.name_step)}/${currentDateTimeThailand}/update_project_step_end`);
-            console.log(`Step ${step.name_step} End updated successfully`, response.data);
-            GetdataAndNavigation();
+            if (response.status === 200) {
+                getDataAndNavigation();
+            }
         } catch (error) {
             console.error(`Error updating End for step ${step.name_step}`, error);
         }
     };
 
-    const UpdateWorkEndtime = async () => {
+    const updateWorkEndtime = async () => {
         try {
             const responseData = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}/projects/${name_project}/${serial}/end_process/${currentDateTimeThailand}`);
             if (responseData.status === 200) {
-                console.log("Update time end success", responseData.data);
-                GetdataAndNavigation();
+                getDataAndNavigation();
             }
         } catch (error) {
-            console.error("Error UpdateWorkEndtime", error);
+            console.error("Error updateWorkEndtime", error);
         }
     };
 
-    const UpdateStatus = async () => {
+    const updateStatus = async () => {
         try {
             const responseData = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}/projects/${name_project}/${serial}/update_status`, {
                 process_status: true
             });
             if (responseData.status === 200) {
-                console.log("Update status success", responseData.data);
-                UpdateWorkEndtime();
+                updateWorkEndtime();
             }
         } catch (error) {
-            console.log("Error UpdateStatus", error);
+            console.log("Error updateStatus", error);
         }
     };
 
-    const [allEnd, setAllEnd] = useState(false)
     useEffect(() => {
         if (projectDetails) {
-            const checkAllEnd = projectDetails.process_step.every(step => step.process_status)
+            const checkAllEnd = projectDetails.process_step.every(step => step.process_status);
             if (checkAllEnd) {
-                console.log("Effected CheckAll End", checkAllEnd)
-                UpdateStatus();
-                setAllEnd(true)
+                updateStatus();
+                setAllEnd(true);
             }
         }
-    }, [projectDetails])
+    }, [projectDetails]);
 
-
-
-    const CreateBreak = async (step: ProcessStep) => {
-        console.log("is active CreateBreak");
-        // /projects/string/string/string/b/create_break
+    const createBreak = async (step: ProcessStep) => {
         try {
             const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}/projects/${name_project}/${serial}/${encodeURIComponent(step.name_step)}/${name}/create_break`, {
                 describe: breakDescription,
@@ -252,7 +232,6 @@ export default function useUpdate() {
                 end_break: "-"
             });
             if (response.status === 200) {
-                console.log("Break created successfully", response.data);
                 setOpenBreak(false);
             }
         } catch (error) {
@@ -261,11 +240,10 @@ export default function useUpdate() {
     };
 
     const handleBreak = async () => {
-        console.log("is click handleBreak");
         if (projectDetails) {
             const stepToUpdateStatus = projectDetails.process_step.find(step => !step.process_status && step.timestart !== "-");
             if (stepToUpdateStatus) {
-                await CreateBreak(stepToUpdateStatus);
+                await createBreak(stepToUpdateStatus);
             } else {
                 alert("โปรดดำเนินการขั้นตอนนี้ก่อน");
             }
@@ -274,14 +252,11 @@ export default function useUpdate() {
         }
     };
 
-
-    const EndBreak = async (step: ProcessStep, describe: string) => {
-        console.log(encodeURIComponent(describe));
+    const endBreak = async (step: ProcessStep, describe: string) => {
         try {
             const responseData = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}/projects/${name_project}/${serial}/${encodeURIComponent(step.name_step)}/${encodeURIComponent(describe)}/${name}/${currentDateTimeThailand}/update_endbreak`);
             if (responseData.status === 200) {
-                console.log("Update Endbreak success", responseData.data);
-                // GetdataAndNavigation();
+                setIsBreaking(false);
             }
         } catch (error) {
             console.log("Error EndBreak", error);
@@ -289,21 +264,17 @@ export default function useUpdate() {
     };
 
     const fetchDataAndEndBreak = async () => {
-        setEffected(prev => prev + 1);
         if (projectDetails) {
-            // Find the step with an ongoing break
             const stepToUpdateStatus = projectDetails.process_step.find(step =>
                 step.employee.some(emp => emp.list_break.some(breakItem => breakItem.start_break !== "-" && breakItem.end_break === "-"))
             );
 
-            // Find the describe value of the current ongoing break
             const getDescribe = projectDetails.process_step.flatMap(step =>
                 step.employee.flatMap(emp => emp.list_break)
             ).find(breakItem => breakItem.start_break !== "-" && breakItem.end_break === "-")?.describe;
 
-            // Check if both step and describe are found
             if (stepToUpdateStatus && getDescribe) {
-                await EndBreak(stepToUpdateStatus, getDescribe);
+                await endBreak(stepToUpdateStatus, getDescribe);
             } else {
                 alert("โปรดดำเนินการขั้นตอนนี้ก่อน");
             }
@@ -312,39 +283,21 @@ export default function useUpdate() {
         }
     };
 
-
-    const [isBreaking, setIsBreaking] = useState(false);
-
     useEffect(() => {
-        console.log("Checking break status");
-
-        const fetchDataAndCheckBreak = async () => {
-            if (projectDetails) {
-                console.log("process is effected");
-
-                // Find the current step where a break is ongoing
-                const currentStepWithBreak = projectDetails.process_step.find(step =>
-                    step.employee.some(emp => emp.list_break.some(breakItem => breakItem.start_break !== "-" && breakItem.end_break === "-"))
-                );
-
-                // Find the next step where the break has been completed
-                const getDescribe = projectDetails.process_step.flatMap(step =>
-                    step.employee.flatMap(emp => emp.list_break)
-                ).find(breakItem => breakItem.start_break !== "-" && breakItem.end_break === "-")
-
-                if (getDescribe) {
-                    console.log("Current step with ongoing break found:", getDescribe);
-                    setIsBreaking(true);
-                } else {
-                    setIsBreaking(false);
-                }
+        if (projectDetails) {
+            const currentStepWithBreak = projectDetails.process_step.find(step =>
+                step.employee.some(emp => emp.list_break.some(breakItem => breakItem.start_break !== "-" && breakItem.end_break === "-"))
+            );
+            if (currentStepWithBreak) {
+                setIsBreaking(true);
             } else {
-                console.log("no project details checking break");
+                setIsBreaking(false);
             }
-        };
-
-        fetchDataAndCheckBreak();
+        } else {
+            console.log("no project details checking break");
+        }
     }, [projectDetails]);
+
     return {
         Scan: {
             serial,

@@ -1,9 +1,10 @@
+"use client"
 import { FC, useEffect, useState } from 'react';
 import ExcelReader from './components/ReadExcelCreate';
 import ReadExcelSerial from './components/ReadExcelSerial';
 import axios from 'axios';
 
-const Createpage: FC = () => {
+const Createpage = () => {
     const [nameProject, setNameProject] = useState<string>("");
     const [dataSerial, setDataSerial] = useState<any[]>([]);
     const [creating, setCreating] = useState<number>(0);
@@ -111,7 +112,7 @@ const Createpage: FC = () => {
         }
       }
     return (
-        <section id="createpage" className="overflow-x-auto relative p-4 bg-gray-700 whitespace-nowrap h-screen min-w-full transition duration-500 ease-in-out">
+        <section id="create_page" className="overflow-x-auto relative p-4 bg-gray-700 whitespace-nowrap h-screen min-w-full transition duration-500 ease-in-out">
             {onLoading && (
                 <div className="w-full h-screen flex items-center justify-center bg-opacity-90 bg-gray-900 absolute top-0 left-0 z-50">
                     <p className='text-white font-bold z-50'>กำลังสร้าง Serial: {loadingPercent}%</p>

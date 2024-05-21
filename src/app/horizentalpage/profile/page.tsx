@@ -1,8 +1,9 @@
+"use client"
 import { FC, useEffect, useState } from 'react';
 import { useValueContext } from '@/app/context';
 
 
-const Profilepage: FC = () => {
+const Profilepage = () => {
 
   const [profilethispage, setProfile] = useState<string>("")
   const [name, setName] = useState<string>("")
@@ -19,7 +20,7 @@ const Profilepage: FC = () => {
   }, [])
 
   return (
-    <section id="profile" className="overflow-x-auto p-4 whitespace-nowrap h-screen min-w-full bg-gray-700 transition duration-500 ease-in-out" >
+    <section id="profile_page" className="overflow-x-auto p-4 whitespace-nowrap h-screen min-w-full bg-gray-700 transition duration-500 ease-in-out" >
       <div className='flex justify-center flex-col items-center h-fit bg-gray-500 rounded-md p-3'>
         <div className='border w-40 h-40 rounded-full drop-shadow-lg overflow-hidden'>
           <img src={profilethispage} alt="" className='w-full h-full' />
