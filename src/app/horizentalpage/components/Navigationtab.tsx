@@ -5,6 +5,7 @@ import { FiHome } from "react-icons/fi";
 import { FaListCheck } from "react-icons/fa6";
 import { useValueContext } from '@/app/context';
 import { MdOutlineCreateNewFolder } from "react-icons/md";
+import Image from 'next/image';
 
 const Navigationtab = () => {
     const [click, setClick] = useState("#home_page")
@@ -22,7 +23,7 @@ const Navigationtab = () => {
     useEffect(() => {
         const localProfile = localStorage.getItem("profile")
         const localName = localStorage.getItem("Name") || "";
-        setName(localName || "") 
+        setName(localName || "")
         setUseProfile(localProfile || "")
     }, [])
 
@@ -46,8 +47,14 @@ const Navigationtab = () => {
                 ))}
                 <Link href={"#profile_page"} onClick={() => { setClick("#profile_page") }} className='flex w-15 h-15 flex-col items-center justify-center'>
                     <div className={`flex rounded-full p-2 flex-col items-center transition duration-300 ease-in-out ${isActive("#profile_page") ? "text-orange-500 bg-gray-900 scale-105 rounded-md" : "hover:scale-110"}`}>
-                        <img src={useProfile} alt="" className='border-2 border-gray-700 w-[30px] h-[30px] rounded-full object-cover'/>
-                    <p className=" text-[9px]">{name}</p>
+                        <Image
+                            src={`${useProfile}`}
+                            alt="Picture of the author"
+                            width={30}
+                            height={30} 
+                            className='rounded-full h-6 w-6 border'
+                        />
+                        <p className=" text-[9px]">{name}</p>
                     </div>
                 </Link>
             </div>
