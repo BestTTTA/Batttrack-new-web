@@ -14,6 +14,7 @@ export default function useScan() {
             setShowModal(true);
             setResultScan(result)
             localStorage.setItem("serial", result?.text)
+            console.log("Serial is set", result.text)
         }
 
     };
@@ -37,6 +38,7 @@ export default function useScan() {
             }
         } catch (error) {
             console.log("Error Getname", error)
+            alert("ไม่พบข้อมูล")
         }
     }
 

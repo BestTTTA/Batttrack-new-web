@@ -24,6 +24,7 @@ interface ProcessStep {
 }
 
 interface ProjectDetails {
+    serial_number: string;
     process_step: ProcessStep[];
 }
 
@@ -32,16 +33,30 @@ export default function useUpdate() {
     const currentDateTimeThailand = moment().format('DD-MM-YYYY HH:mm:ss');
     const [effected, setEffected] = useState<number>(0);
     const [showModal, setShowModal] = useState<boolean>(false);
-    const [serial, setSerial] = useState<string>("No result");
+    const [serial, setSerial] = useState<string>("");
     const [resultScan, setResultScan] = useState<string>("");
     const [name_project, setNameProject] = useState<string>("");
     const [projectDetails, setProjectDetails] = useState<ProjectDetails | null>(null);
     const [name, setName] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [openBreak, setOpenBreak] = useState<boolean>(false);
-    const [breakDescription, setBreakDescription] = useState<string>("");
+    const [breakDescription, setBreakDescription] = useState<string>("พัก");
     const [isBreaking, setIsBreaking] = useState<boolean>(false);
     const [allEnd, setAllEnd] = useState<boolean>(false);
+    const [hasNavigated, setHasNavigated] = useState<boolean>(false);
+
+    const Getdata = async (serial: string) => {
+        try {
+            const responseData = await axios.get<ProjectDetails>(`${process.env.NEXT_PUBLIC_BASE_URL}/search_project_details/${serial}`);
+            if (responseData.status === 200) {
+                setProjectDetails(responseData.data);
+                console.log("Getdata success", responseData.data);
+            }
+        } catch (error) {
+            console.log("error this is", serial);
+            console.error("Error fetching project details", error);
+        }
+    };
 
     useEffect(() => {
         const localNameProject = localStorage.getItem("name_project");
@@ -51,10 +66,14 @@ export default function useUpdate() {
     }, [effected]);
 
     useEffect(() => {
+        console.log("Component mounted");
         const localName = localStorage.getItem("Name") || "";
         const localPassword = localStorage.getItem("Password") || "";
-        const localSerial = localStorage.getItem("serial");
-        setSerial(localSerial || "");
+        const localSerial = localStorage.getItem("serial") || "";
+        if (localSerial) {
+            setSerial(localSerial);
+            Getdata(localSerial);
+        }
         setName(localName);
         setPassword(localPassword);
     }, []);
@@ -72,15 +91,18 @@ export default function useUpdate() {
         setShowModal(false);
     };
 
-    const getDataAndNavigation = async () => {
-        try {
-            const responseData = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/search_project_details/${resultScan}`);
-            if (responseData.status === 200) {
-                const serializedData = encodeURIComponent(JSON.stringify(responseData.data));
-                router.push(`/option/details?projectdetails=${serializedData}`);
+    const getDataAndNavigation = async (serial: string) => {
+        if (!hasNavigated) {
+            try {
+                const responseData = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/search_project_details/${serial}`);
+                if (responseData.status === 200) {
+                    const serializedData = encodeURIComponent(JSON.stringify(responseData.data));
+                    router.push(`/option/details?projectdetails=${serializedData}`);
+                    setHasNavigated(true);
+                }
+            } catch (error) {
+                console.log("Error Getdata project", error);
             }
-        } catch (error) {
-            console.log("Error Getdata project", error);
         }
     };
 
@@ -94,23 +116,6 @@ export default function useUpdate() {
             }
         }
     };
-
-    const Getdata = async () => {
-        try {
-            const responseData = await axios.get<ProjectDetails>(`${process.env.NEXT_PUBLIC_BASE_URL}/search_project_details/${serial}`);
-            if (responseData.status === 200) {
-                setProjectDetails(responseData.data);
-            }
-        } catch (error) {
-            console.error("Error fetching project details", error);
-        }
-    };
-
-    useEffect(() => {
-        if (serial) {
-            Getdata();
-        }
-    }, [effected, openBreak]);
 
     const UpdateWorkStarttime = async () => {
         try {
@@ -159,7 +164,7 @@ export default function useUpdate() {
         try {
             const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}/projects/${name_project}/${serial}/${encodeURIComponent(step.name_step)}/${currentDateTimeThailand}/update_project_step_start`);
             if (response.status === 200) {
-                getDataAndNavigation();
+                getDataAndNavigation(serial);
             }
         } catch (error) {
             console.error(`Error updating start for step ${step.name_step}`, error);
@@ -183,31 +188,31 @@ export default function useUpdate() {
         try {
             const response = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}/projects/${name_project}/${serial}/${encodeURIComponent(step.name_step)}/${currentDateTimeThailand}/update_project_step_end`);
             if (response.status === 200) {
-                getDataAndNavigation();
+                getDataAndNavigation(serial);
             }
         } catch (error) {
             console.error(`Error updating End for step ${step.name_step}`, error);
         }
     };
 
-    const updateWorkEndtime = async () => {
+    const updateWorkEndtime = async (serial: string) => {
         try {
             const responseData = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}/projects/${name_project}/${serial}/end_process/${currentDateTimeThailand}`);
             if (responseData.status === 200) {
-                getDataAndNavigation();
+                // getDataAndNavigation(serial);
             }
         } catch (error) {
             console.error("Error updateWorkEndtime", error);
         }
     };
 
-    const updateStatus = async () => {
+    const updateStatus = async (serial: string) => {
         try {
             const responseData = await axios.put(`${process.env.NEXT_PUBLIC_BASE_URL}/projects/${name_project}/${serial}/update_status`, {
                 process_status: true
             });
             if (responseData.status === 200) {
-                updateWorkEndtime();
+                updateWorkEndtime(serial);
             }
         } catch (error) {
             console.log("Error updateStatus", error);
@@ -215,11 +220,15 @@ export default function useUpdate() {
     };
 
     useEffect(() => {
+        console.log("effected activate");
         if (projectDetails) {
+            console.log("has project");
             const checkAllEnd = projectDetails.process_step.every(step => step.process_status);
             if (checkAllEnd) {
-                updateStatus();
+                console.log("All steps End");
+                updateStatus(projectDetails.serial_number);
                 setAllEnd(true);
+                // getDataAndNavigation(serial)
             }
         }
     }, [projectDetails]);
@@ -233,6 +242,7 @@ export default function useUpdate() {
             });
             if (response.status === 200) {
                 setOpenBreak(false);
+                getDataAndNavigation(serial)
             }
         } catch (error) {
             console.error(`Error creating break ${step.name_step} and ${serial} and ${name_project}`, error);
@@ -244,11 +254,12 @@ export default function useUpdate() {
             const stepToUpdateStatus = projectDetails.process_step.find(step => !step.process_status && step.timestart !== "-");
             if (stepToUpdateStatus) {
                 await createBreak(stepToUpdateStatus);
+                getDataAndNavigation(serial)
             } else {
                 alert("โปรดดำเนินการขั้นตอนนี้ก่อน");
             }
         } else {
-            console.log("no project deatils handleBreak");
+            console.log("no project details handleBreak");
         }
     };
 
@@ -278,8 +289,6 @@ export default function useUpdate() {
             } else {
                 alert("โปรดดำเนินการขั้นตอนนี้ก่อน");
             }
-        } else {
-            console.log("no project details checking break");
         }
     };
 
@@ -293,8 +302,6 @@ export default function useUpdate() {
             } else {
                 setIsBreaking(false);
             }
-        } else {
-            console.log("no project details checking break");
         }
     }, [projectDetails]);
 
