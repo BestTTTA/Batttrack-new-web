@@ -1,5 +1,5 @@
 "use client"
-import { FC, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useValueContext } from '@/app/context';
 import Image from 'next/image';
 

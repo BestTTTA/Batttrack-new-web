@@ -40,7 +40,7 @@ const Checkpage = () => {
       const responseWorking = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/search_by_employee_work_done/${name}/`)
       if (responseWorking.status === 200) {
         console.log("Success get responseWorking", responseWorking.data)
-        setData(responseWorking.data) // Assuming responseWorking.data is an array of Detail
+        setData(responseWorking.data) 
       }
     } catch (error) {
       console.log("Error get working", error)

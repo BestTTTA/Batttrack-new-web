@@ -44,19 +44,29 @@ const DownloadExcel: React.FC<DownloadExcelProps> = ({ json_data }) => {
                 const employeeNames = step.employee.map(emp => emp.name).join(", ");
                 const listBreaks = step.employee.flatMap(emp => emp.list_break);
 
+                const calculateBreakDuration = (start: string, end: string) => {
+                    const startDate = new Date(start);
+                    const endDate = new Date(end);
+                    const durationMs = endDate.getTime() - startDate.getTime();
+                    const durationMinutes = Math.floor(durationMs / 60000);
+                    const durationSeconds = ((durationMs % 60000) / 1000).toFixed(0);
+                    return `${durationMinutes} นาที ${durationSeconds} วินาที`;
+                };
+
                 return {
                     เลขSerial: json_data.serial_number,
                     เวลาเริ่มโปรเจค: json_data.timestart,
                     เวลาจบโปรเจค: json_data.endtime,
-                    สถานะโปรเจค: json_data.process_status ? 'ดำเนินการเสร็จสิ้น' : 'ดำเนินการเสร็จสิ้น',
+                    สถานะโปรเจค: json_data.process_status ? 'ดำเนินการเสร็จสิ้น' : 'กำลังดำเนินการ',
                     ชื่อขั้นตอน: step.name_step,
                     เริ่มขั้นตอนเมื่อ: step.timestart,
                     จบขั้นตอนเมื่อ: step.endtime,
                     สถานะขั้นตอน: step.process_status ? 'ดำเนินการเสร็จสิ้น' : 'กำลังดำเนินการ',
                     พนักงาน: employeeNames,
-                    อธิบายการพัก: listBreaks.map(breakItem => breakItem.describe).join(", ") || "N/A",
-                    เวลาเริ่มพัก: listBreaks.map(breakItem => breakItem.start_break).join(", ") || "N/A",
-                    จบการพัก: listBreaks.map(breakItem => breakItem.end_break).join(", ") || "N/A"
+                    อธิบายการพัก: listBreaks.map(breakItem => breakItem.describe).join(" | ") || "N/A",
+                    เวลาเริ่มพัก: listBreaks.map(breakItem => breakItem.start_break).join(" | ") || "N/A",
+                    จบการพัก: listBreaks.map(breakItem => breakItem.end_break).join(" | ") || "N/A",
+                    ระยะเวลาการพัก: listBreaks.map(breakItem => calculateBreakDuration(breakItem.start_break, breakItem.end_break)).join("| ") || "N/A",
                 };
             });
 
@@ -83,9 +93,8 @@ const DownloadExcel: React.FC<DownloadExcelProps> = ({ json_data }) => {
 
     return (
         <button onClick={handleDownload} disabled={loading || !json_data} className='flex justify-center w-full text-center bg-white p-2 mt-4 rounded-md focus:scale-105 text-white'>
-            {/* {loading ? 'Downloading...' : <FaFileDownload size={30} color='green' />}
-             */}
-             <p className='text-green-500'>ดาวน์โหลดข้อมูล</p>
+            {loading ? 'Downloading...' : <FaFileDownload size={30} color='green' />}
+            <p className='text-green-500 ml-2'>ดาวน์โหลดข้อมูล</p>
         </button>
     );
 };

@@ -219,7 +219,7 @@ export default function useUpdate() {
         }
     };
 
-    useEffect(() => {
+    useEffect(() => {   
         console.log("effected activate");
         if (projectDetails) {
             console.log("has project");
@@ -228,7 +228,6 @@ export default function useUpdate() {
                 console.log("All steps End");
                 updateStatus(projectDetails.serial_number);
                 setAllEnd(true);
-                // getDataAndNavigation(serial)
             }
         }
     }, [projectDetails]);
@@ -253,8 +252,9 @@ export default function useUpdate() {
         if (projectDetails) {
             const stepToUpdateStatus = projectDetails.process_step.find(step => !step.process_status && step.timestart !== "-");
             if (stepToUpdateStatus) {
-                await createBreak(stepToUpdateStatus);
+                console.log("is break")
                 getDataAndNavigation(serial)
+                await createBreak(stepToUpdateStatus);
             } else {
                 alert("โปรดดำเนินการขั้นตอนนี้ก่อน");
             }
