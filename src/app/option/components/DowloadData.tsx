@@ -41,15 +41,35 @@ const DownloadExcel: React.FC<DownloadExcelProps> = ({ json_data }) => {
         setLoading(true);
         try {
             const flattenedData = json_data.process_step.map(step => {
-                const employeeNames = step.employee.map(emp => emp.name).join("");
+                const employeeNames = step.employee.map(emp => emp.name).join(", ");
                 const listBreaks = step.employee.flatMap(emp => emp.list_break);
 
                 const calculateBreakDuration = (start: string, end: string) => {
-                    const startDate = new Date(start);
-                    const endDate = new Date(end);
+                    if (start === "-" || end === "-") {
+                        return "N/A";
+                    }
+                    // Parse the date strings assuming the format is 'DD-MM-YYYY HH:MM:SS'
+                    const parseDate = (dateString: string) => {
+                        const [date, time] = dateString.split(' ');
+                        const [day, month, year] = date.split('-').map(Number);
+                        const [hours, minutes, seconds] = time.split(':').map(Number);
+                        return new Date(year, month - 1, day, hours, minutes, seconds);
+                    };
+
+                    const startDate = parseDate(start);
+                    const endDate = parseDate(end);
+
+                    console.log('Start Date:', startDate);
+                    console.log('End Date:', endDate);
+
+                    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                        console.log('Invalid Date');
+                        return "N/A";
+                    }
+
                     const durationMs = endDate.getTime() - startDate.getTime();
                     const durationMinutes = Math.floor(durationMs / 60000);
-                    const durationSeconds = ((durationMs % 60000) / 1000).toFixed(0);
+                    const durationSeconds = Math.floor((durationMs % 60000) / 1000);
                     return `${durationMinutes} นาที ${durationSeconds} วินาที`;
                 };
 
@@ -63,10 +83,10 @@ const DownloadExcel: React.FC<DownloadExcelProps> = ({ json_data }) => {
                     จบขั้นตอนเมื่อ: step.endtime,
                     สถานะขั้นตอน: step.process_status ? 'ดำเนินการเสร็จสิ้น' : 'กำลังดำเนินการ',
                     พนักงาน: employeeNames,
-                    อธิบายการพัก: listBreaks.map(breakItem => breakItem.describe).join(" | ") || "N/A",
-                    เวลาเริ่มพัก: listBreaks.map(breakItem => breakItem.start_break).join(" | ") || "N/A",
-                    จบการพัก: listBreaks.map(breakItem => breakItem.end_break).join(" | ") || "N/A",
-                    ระยะเวลาการพัก: listBreaks.map(breakItem => calculateBreakDuration(breakItem.start_break, breakItem.end_break)).join("| ") || "N/A",
+                    อธิบายการพัก: listBreaks.map(breakItem => breakItem.describe).join(", ") || "N/A",
+                    เวลาเริ่มพัก: listBreaks.map(breakItem => breakItem.start_break).join(", ") || "N/A",
+                    จบการพัก: listBreaks.map(breakItem => breakItem.end_break).join(", ") || "N/A",
+                    ระยะเวลาการพัก: listBreaks.map(breakItem => calculateBreakDuration(breakItem.start_break, breakItem.end_break)).join(", ") || "N/A",
                 };
             });
 
