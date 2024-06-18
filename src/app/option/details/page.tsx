@@ -51,17 +51,26 @@ const Details: React.FC = () => {
 
   return (
     <>
-      <div className='bg-gray-700 min-h-screen p-4 relative flex flex-col items-center'>
+      <div className='bg-gray-700 h-screen p-4 relative flex flex-col items-center'>
         <div className='rounded-md w-full bg-gray-500 p-2 text-white'>
           {details ? (
             <div className="list-disc">
               <div className='font-bold'>Serial Number: <strong className='text-orange-400'>{details.serial_number}</strong></div>
               <div>Start Time: <strong>{details.timestart}</strong></div>
               <div>End Time: <strong>{details.endtime}</strong></div>
-              <div className='flex'>Process Status: <strong className='mx-2'>{details.process_status ? <p className='text-orange-400'>ดำเนินการเสร็จสิ้น</p> : <p className='text-red-700'>กำลังดำเนินการ</p>}</strong></div>
+              <div className="flex">
+                Process Status:
+                {details.process_status ? (
+                  <p className='text-orange-500 mx-2'>ดำเนินการเสร็จสิ้น</p>
+                ) : details.timestart != "-" ? (
+                  <p className='text-yellow-400 mx-2'>กำลังดำเนินการ</p>
+                ) : (
+                  <p className='text-red-800 mx-2'>รอดำเนินการ</p>
+                )}
+              </div>
               <div>
-                <div className="text-white rounded-lg w-full flex justify-between">
-                  <button className="text-white rounded-lg w-full flex justify-between" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                <div onClick={() => setDropdownOpen(!dropdownOpen)} className="text-white rounded-lg w-full flex justify-between ">
+                  <button className="text-white rounded-lg w-full flex justify-between">
                     Process Steps
                   </button>
                   <button>▼</button>
@@ -72,11 +81,20 @@ const Details: React.FC = () => {
                       <div className="max-h-80 overflow-y-auto flex flex-col justify-start">
                         {details.process_step.map((step, index) => (
                           <div key={index} className="px-2 py-2">
-                            <p className='text-gray-900 font-bold text-lg'>{step.name_step}</p>
+                            <p className='text-gray-900 font-bold text-[24px]'>{step.name_step}</p>
                             <p>Start Time: {step.timestart}</p>
                             <p>End Time: {step.endtime}</p>
-                            <div className="flex">Status: {step.process_status ? <p className='text-orange-500 mx-2'>ดำเนินการเสร็จสิ้น</p> : <p className='text-red-800 mx-2'>รอดำเนินการ</p>}</div>
-                            <p>Employees: {step.employee.length > 0 ? step.employee.map(emp => emp.name).join(', ') : 'ยังไม่มีพนักงาน'}</p>
+                            <div className="flex">
+                              Status:
+                              {step.process_status ? (
+                                <p className='text-orange-500 mx-2'>ดำเนินการเสร็จสิ้น</p>
+                              ) : step.timestart != "-" ? (
+                                <p className='text-yellow-400 mx-2'>กำลังดำเนินการ</p>
+                              ) : (
+                                <p className='text-red-800 mx-2'>รอดำเนินการ</p>
+                              )}
+                            </div>
+                            <p>Employees: {step.employee.length > 0 ? step.employee.map(emp => emp.name).join("") : 'ยังไม่มีพนักงาน'}</p>
                           </div>
                         ))}
                       </div>
@@ -90,6 +108,7 @@ const Details: React.FC = () => {
           ) : (
             <p>No project details available</p>
           )}
+
         </div>
         {Scan.isBreaking ? (
           <div onClick={Scan.fetchDataAndEndBreak} className='w-full text-center bg-orange-500 p-2 mt-2 rounded-md focus:scale-105 text-white'>
@@ -97,9 +116,14 @@ const Details: React.FC = () => {
           </div>
         ) : !Scan.allEnd ? (
           <>
-            <Link href="/updatework" className='w-full text-center bg-orange-500 p-2 mt-4 rounded-md focus:scale-105 text-white'>
-              อัพเดตงาน
-            </Link>
+            {Scan.start ?
+              < Link href="/updatework" className='w-full text-center bg-orange-500 p-2 mt-4 rounded-md focus:scale-105 text-white'>
+                เริ่มงาน
+              </Link> :
+              < Link href="/updatework" className='w-full text-center bg-orange-500 p-2 mt-4 rounded-md focus:scale-105 text-white'>
+                จบงาน
+              </Link>
+            }
             <div onClick={() => { Scan.setOpenBreak(true) }} className='w-full text-center bg-red-500 p-2 mt-2 rounded-md focus:scale-105 text-white'>
               พัก
             </div>
@@ -126,7 +150,7 @@ const Details: React.FC = () => {
         <Link href="/option" className='absolute bottom-2 rounded-full p-2 flex items-center justify-center drop-shadow-lg focus:scale-105'>
           <IoHomeSharp size={40} color='white' />
         </Link>
-      </div>
+      </div >
     </>
   );
 };

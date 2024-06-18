@@ -41,7 +41,7 @@ const DownloadExcel: React.FC<DownloadExcelProps> = ({ json_data }) => {
         setLoading(true);
         try {
             const flattenedData = json_data.process_step.map(step => {
-                const employeeNames = step.employee.map(emp => emp.name).join(", ");
+                const employeeNames = step.employee.map(emp => emp.name).join("");
                 const listBreaks = step.employee.flatMap(emp => emp.list_break);
 
                 const calculateBreakDuration = (start: string, end: string) => {

@@ -44,6 +44,31 @@ export default function useUpdate() {
     const [isBreaking, setIsBreaking] = useState<boolean>(false);
     const [allEnd, setAllEnd] = useState<boolean>(false);
     const [hasNavigated, setHasNavigated] = useState<boolean>(false);
+    const [start, setStart] = useState(false);
+    const [end, setEnd] = useState(false);
+
+
+
+
+    useEffect(() => {
+        const updateStartStep = async () => {
+            if (projectDetails) {
+                const stepToUpdateStart = projectDetails.process_step.find(step => !step.process_status && step.timestart === "-" && step.endtime === "-");
+                if (stepToUpdateStart) {
+                    const stepIndex = projectDetails.process_step.indexOf(stepToUpdateStart);
+                    if (stepIndex === 0 || (projectDetails.process_step[stepIndex - 1].process_status)) {
+                        setStart(true);
+                    }
+                }
+                const stepToUpdateStatus = projectDetails.process_step.find(step => !step.process_status && step.timestart !== "-");
+                if (stepToUpdateStatus) {
+                    setEnd(true);
+                }
+            }
+        };
+
+        updateStartStep();
+    }, [projectDetails]);
 
     const Getdata = async (serial: string) => {
         try {
@@ -57,6 +82,8 @@ export default function useUpdate() {
             console.error("Error fetching project details", error);
         }
     };
+
+
 
     useEffect(() => {
         const localNameProject = localStorage.getItem("name_project");
@@ -85,6 +112,8 @@ export default function useUpdate() {
             setEffected(prev => prev + 1);
         }
     };
+
+
 
     const handleCloseModal = (event: React.MouseEvent) => {
         event.stopPropagation();
@@ -219,7 +248,7 @@ export default function useUpdate() {
         }
     };
 
-    useEffect(() => {   
+    useEffect(() => {
         console.log("effected activate");
         if (projectDetails) {
             console.log("has project");
@@ -253,7 +282,7 @@ export default function useUpdate() {
             const stepToUpdateStatus = projectDetails.process_step.find(step => !step.process_status && step.timestart !== "-");
             if (stepToUpdateStatus) {
                 console.log("is break")
-                getDataAndNavigation(serial)
+                await getDataAndNavigation(serial)
                 await createBreak(stepToUpdateStatus);
             } else {
                 alert("โปรดดำเนินการขั้นตอนนี้ก่อน");
@@ -318,7 +347,9 @@ export default function useUpdate() {
             setBreakDescription,
             isBreaking,
             fetchDataAndEndBreak,
-            allEnd
+            allEnd,
+            start,
+            end
         },
     };
 }

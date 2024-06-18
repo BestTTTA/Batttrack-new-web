@@ -33,7 +33,7 @@ const UpdateWork: FC = () => {
                             className="bg-orange-500 h-12 text-white flex justify-center items-center rounded-md"
                             onClick={Scan.handleOK}
                         >
-                            อัพเดตงาน
+                            ดำเนินการต่อ
                         </button>
                         <button
                             className="bg-gray-200 h-12 text-gray-800 rounded-md"
