@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
-import { useRouter } from 'next/navigation'; 
-import { useValueContext } from '@/app/context'; 
+import { useRouter } from 'next/navigation';
+import { useValueContext } from '@/app/context';
 
 export default function useLogin() {
     const [name, setName] = useState<string>("");
@@ -35,7 +35,11 @@ export default function useLogin() {
                 localStorage.setItem("Name", response.data.username);
                 localStorage.setItem("Password", password);
                 setProfile(response.data.picture_url)
-                router.push("/option");
+                if (response.data.username === "admin") {
+                    router.push('/admin')
+                } else {
+                    router.push("/option");
+                }
             } else {
                 alert("Login failed, please check your credentials.");
             }
