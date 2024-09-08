@@ -129,7 +129,7 @@ const Details: React.FC = () => {
             </div>
           </>
         ) : null}
-        {details && <DownloadExcel json_data={details} />}
+        {/* {details && <DownloadExcel json_data={details} />} */}
         {Scan.openBreak && (
           <div className='bg-gray-600 rounded-md drop-shadow-lg absolute flex flex-col w-80 h-fit top-60 p-4'>
             <button onClick={() => { Scan.setOpenBreak(false) }} className='absolute top-2 right-2 bg-white rounded-full text-black font-bold w-6 h-6 focus:scale-105'>X</button>
