@@ -19,6 +19,8 @@ const Profilepage = () => {
     setProfile(localProfile)
   }, [])
 
+  console.log("Profile url", profilethispage)
+
   return (
     <section id="profile_page" className="overflow-x-auto p-4 whitespace-nowrap h-screen min-w-full bg-gray-700 transition duration-500 ease-in-out" >
       <div className='flex justify-center flex-col items-center h-fit bg-gray-500 rounded-md p-3'>
